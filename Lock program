@@ -1,0 +1,39 @@
+password = "password"
+debug_char = "0"
+
+term.clear()
+
+function mainLoop()
+while(true) do
+event, driveSide = os.pullEventRaw()
+if(event=="disk" and driveSide) then
+path = disk.getMountPath(driveSide)
+if(path) then
+path = path.."/access"
+file = fs.exists(path) and io.open(path, "r") or nil
+end
+disk.eject(driveSide)
+if(file and file:read()==password) then
+rs.setOutput("left", true)
+sleep(3)
+rs.setOutput("left", false)
+end
+if(file) then file:close() file = nil end
+elseif(debug_char and event=="char" and driveSide==debug_char) then return("break") end
+end
+end
+
+rs.setOutput("left", false)
+sfile = io.open("/startup", "w")
+sfile:write('shell.run("keycard")')
+sfile:close()
+
+repeat
+ok, err, val = pcall(mainLoop)
+if(not ok and err) then
+if(err=="Terminated") then print ("Access denied.")
+else
+print(err)
+end
+end
+until(ok and err=="break")
