@@ -1,7 +1,9 @@
-password = "password"
+password = ""
 debug_char = "0"
 
 term.clear()
+term.setCursorPos(1,1)
+print("Keycard Lock System Activated")
 
 function mainLoop()
 while(true) do
